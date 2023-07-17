@@ -87,6 +87,25 @@
             };
         };
         
+        closeButton.onclick = function (){
+            if (!socket || socket.readyState !== WebSocket.OPEN){
+                alert("Socket not connected");
+            }
+            socket.close(1000, "Closing from client");
+        };
+        
+        sendButton.onclick = function (){
+            if (!socket || socket.readyState !== WebSocket.OPEN){
+                alert("Socket not connected");
+            }
+            var data = sendMessage.value;
+            socket.send(data);
+            commsLog.innerHTML += '<tr>' +
+                '<td>Server</td>' +
+                '<td>Client</td>' +
+                '<td>' + htmlEscape(data) + '</td></tr>';
+        };
+        
         function htmlEscape(str){
             return str.toString()
                 .replace(/&/g, '&amp;')
@@ -97,16 +116,16 @@
         }
         function updateState(){
             function disable(){
-                sendMessage.disable = true;
-                sendButton.disable = true;
-                closeButton.disable = true;
-                recipents.disable = true;
+                sendMessage.disabled = true;
+                sendButton.disabled = true;
+                closeButton.disabled = true;
+                recipents.disabled = true;
             }
             function enable(){
-                sendMessage.disable = false;
-                sendButton.disable = false;
-                closeButton.disable = false;
-                recipents.disable = false;
+                sendMessage.disabled = false;
+                sendButton.disabled = false;
+                closeButton.disabled = false;
+                recipents.disabled = false;
             }
             
             connectionUrl.disable = true;
@@ -132,7 +151,8 @@
                         break;
                     default:
                         stateLabel.innerHTML = "Unknown WebSocket State: " + htmlEscape(socket.readyState);
-                        
+                        disable();
+                        break;
                 }
             }
         }
