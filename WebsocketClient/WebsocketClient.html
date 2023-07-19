@@ -33,8 +33,8 @@
     </div>
     <p></p>
     <div>
-        <label for="recipents">Recipent ID:</label>
-        <input id="recipents" disabled>
+        <label for="recipients">Recipient ID:</label>
+        <input id="recipients" disabled>
     </div>
     <p></p>
     <h2>Communication Log</h2>
@@ -58,7 +58,7 @@
         var sendButton = document.getElementById("sendButton");
         var commsLog = document.getElementById("commsLog");
         var closeButton = document.getElementById("closeButton");
-        var recipents = document.getElementById("recipents");
+        var recipients = document.getElementById("recipients");
         var connID = document.getElementById("conIDLabel");
         
         connectionUrl.value = "ws://localhost:5035";
@@ -84,6 +84,7 @@
                     '<td>Server</td>' +
                     '<td>Client</td>' +
                     '<td>' + htmlEscape(event.data) + '</td></tr>';
+                isConnID(event.data);
             };
         };
         
@@ -98,7 +99,7 @@
             if (!socket || socket.readyState !== WebSocket.OPEN){
                 alert("Socket not connected");
             }
-            var data = sendMessage.value;
+            var data = constructJSON();
             socket.send(data);
             commsLog.innerHTML += '<tr>' +
                 '<td>Server</td>' +
@@ -106,10 +107,22 @@
                 '<td>' + htmlEscape(data) + '</td></tr>';
         };
         
+        function isConnID(str){
+            if (str.substring(0,7) == "ConnID:"){
+                connID.innerHTML = str;
+            }
+        }
+        function constructJSON(){
+            return JSON.stringify({
+                "From" : connID.innerHTML.substring(8, connID.innerHTML.length),
+                "To" : recipients.value,
+                "Message" : sendMessage.value
+            });
+        }
         function htmlEscape(str){
             return str.toString()
                 .replace(/&/g, '&amp;')
-                .replace(/"/g, 'quot;')
+                //.replace(/"/g, 'quot;')
                 .replace(/'/g, '&#39;')
                 .replace(/</g, '&lt;')
                 .replace(/>/g, '&gt;')
@@ -119,13 +132,13 @@
                 sendMessage.disabled = true;
                 sendButton.disabled = true;
                 closeButton.disabled = true;
-                recipents.disabled = true;
+                recipients.disabled = true;
             }
             function enable(){
                 sendMessage.disabled = false;
                 sendButton.disabled = false;
                 closeButton.disabled = false;
-                recipents.disabled = false;
+                recipients.disabled = false;
             }
             
             connectionUrl.disable = true;
